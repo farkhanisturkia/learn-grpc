@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "job-service/pb";
+
+message Job {
+  int64 id = 1;
+  int64 user_id = 2;
+  string title = 3;
+  string company = 4;
+}
+
+message CreateJobRequest { int64 user_id = 1; string title = 2; string company = 3; }
+message GetJobRequest { int64 id = 1; }
+message GetJobsByUserRequest { int64 user_id = 1; }
+message UpdateJobRequest { int64 id = 1; string title = 2; string company = 3; }
+message DeleteJobRequest { int64 id = 1; }
+message DeleteJobsByUserRequest { int64 user_id = 1; }
+message EmptyJobResponse {}
+
+message ListJobsResponse {
+  repeated Job jobs = 1;
+}
+
+service JobService {
+  rpc CreateJob(CreateJobRequest) returns (Job);
+  rpc GetJob(GetJobRequest) returns (Job);
+  rpc GetJobsByUser(GetJobsByUserRequest) returns (ListJobsResponse);
+  rpc UpdateJob(UpdateJobRequest) returns (Job);
+  rpc DeleteJob(DeleteJobRequest) returns (EmptyJobResponse);
+  rpc DeleteJobsByUser(DeleteJobsByUserRequest) returns (EmptyJobResponse);
+}
