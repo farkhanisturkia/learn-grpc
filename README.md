@@ -116,8 +116,8 @@ Buka 2 tab terminal terpisah dan jalankan kedua service:
   -H "Content-Type: application/json" \
   -d '{
     "id": 1,
-    "name": "Wawan Setiawan",
-    "email": "wawan.new@msroot.id"
+    "name": "User New",
+    "email": "user.new@example.id"
   }' \
   http://localhost:50051/pb.UserService/UpdateUser | jq
   ```
