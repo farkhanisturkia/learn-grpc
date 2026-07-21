@@ -24,7 +24,6 @@ Pastikan kamu sudah menginstal tools berikut di sistem kamu:
 
   ```bash
   LEARN-GRPC/
-  LEARN-GRPC/
   ├── proto/                  # Definisi gRPC/Connect Schema
   │   ├── job.proto
   │   └── user.proto
