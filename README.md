@@ -3,7 +3,8 @@
 Project ini adalah implementasi *microservices* sederhana menggunakan **Golang** dan **Connect RPC** (tanpa Envoy Proxy / API Gateway). Terdiri dari 2 service independen yang berkomunikasi secara *inter-service*:
 
 1. **`user-service`** (`:50051`): Mengelola data user & berkomunikasi dengan `job-service` untuk agregasi data.
-2. **`job-service`** (`:50052`): Mengelola data pekerjaan/lowongan berbasis `userId`.
+2. **`job-service`** (`:50052`): Mengelola data pekerjaan berbasis `userId`.
+2. **`education-service`** (`:50053`): Mengelola data pendidikan berbasis `userId`.
 
 ---
 
@@ -25,8 +26,9 @@ Pastikan kamu sudah menginstal tools berikut di sistem kamu:
   ```bash
   LEARN-GRPC/
   ├── proto/                  # Definisi gRPC/Connect Schema
+  │   ├── user.proto
   │   ├── job.proto
-  │   └── user.proto
+  │   └── education.proto
   ├── user-service/           # User Service App
   │   ├── client/             # Internal Client untuk panggil Job Service
   │   ├── db/                 # Koneksi DB SQLite
@@ -34,10 +36,16 @@ Pastikan kamu sudah menginstal tools berikut di sistem kamu:
   │   ├── server/             # Implementation Server UserService
   │   ├── go.mod
   │   └── main.go
-  └── job-service/            # Job Service App
+  ├── job-service/            # Job Service App
+  │   ├── db/                 # Koneksi DB SQLite
+  │   ├── pb/                 # Generated Protobuf Code (Job)
+  │   ├── server/             # Implementation Server JobService
+  │   ├── go.mod
+  │   └── main.go
+  └── education-service/      # Education Service App
       ├── db/                 # Koneksi DB SQLite
-      ├── pb/                 # Generated Protobuf Code (Job)
-      ├── server/             # Implementation Server JobService
+      ├── pb/                 # Generated Protobuf Code (Education)
+      ├── server/             # Implementation Server EducationService
       ├── go.mod
       └── main.go
   ```
@@ -52,9 +60,11 @@ Jalankan perintah ini dari root folder project (LEARN-GRPC) untuk mengompilasi f
   protoc -I=proto \
   --go_out=user-service/pb --go_opt=paths=source_relative \
   --go_opt=Mjob.proto=user-service/pb \
+  --go_opt=Meducation.proto=user-service/pb \
   --connect-go_out=user-service/pb --connect-go_opt=paths=source_relative \
   --connect-go_opt=Mjob.proto=user-service/pb \
-  job.proto user.proto
+  --connect-go_opt=Meducation.proto=user-service/pb \
+  user.proto job.proto education.proto
   ```
 
 * Compile Protobuf untuk job-service
@@ -64,6 +74,15 @@ Jalankan perintah ini dari root folder project (LEARN-GRPC) untuk mengompilasi f
   --plugin=protoc-gen-connect-go=$(go env GOPATH)/bin/protoc-gen-connect-go \
   --connect-go_out=job-service/pb --connect-go_opt=paths=source_relative \
   job.proto
+  ```
+
+* Compile Protobuf untuk education-service
+  ```bash
+  protoc -I=proto \
+  --go_out=education-service/pb --go_opt=paths=source_relative \
+  --plugin=protoc-gen-connect-go=$(go env GOPATH)/bin/protoc-gen-connect-go \
+  --connect-go_out=education-service/pb --connect-go_opt=paths=source_relative \
+  education.proto
   ```
 ---
 
@@ -84,6 +103,13 @@ Buka 2 tab terminal terpisah dan jalankan kedua service:
   go run .
   ```
     (Berjalan di http://localhost:50052)
+
+* Tab 2: Running Education Service  
+  ```bash
+  cd education-service
+  go run .
+  ```
+    (Berjalan di http://localhost:50053)
 
 ---
 
@@ -198,3 +224,70 @@ Buka 2 tab terminal terpisah dan jalankan kedua service:
   http://localhost:50052/pb.JobService/DeleteJobsByUser | jq
   ```
 
+#### 🎓 Education Service
+* Create Education
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "level": "S1",
+    "program": "Teknik Informatika",
+    "university": "Universitas Negeri Surabaya"
+  }' \
+  http://localhost:50053/pb.EducationService/CreateEducation | jq
+  ```
+
+* Get Education
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1
+  }' \
+  http://localhost:50053/pb.EducationService/GetEducation | jq
+  ```
+
+* Get Educations By User ID
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1
+  }' \
+  http://localhost:50053/pb.EducationService/GetEducationsByUser | jq
+  ```
+
+* Update Education
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1,
+    "userId": 1,
+    "level": "S1",
+    "program": "Ilmu Administrasi Negara",
+    "university": "Universitas Negeri Surabaya"
+  }' \
+  http://localhost:50053/pb.EducationService/UpdateEducation | jq
+  ```
+
+* Delete Education
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1
+  }' \
+  http://localhost:50053/pb.EducationService/DeleteEducation | jq
+  ```
+
+* Delete Education By User ID
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1
+  }' \
+  http://localhost:50053/pb.EducationService/DeleteEducationsByUser | jq
+  ```
