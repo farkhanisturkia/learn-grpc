@@ -2,7 +2,7 @@
 
 Project ini adalah implementasi *microservices* sederhana menggunakan **Golang** dan **Connect RPC** (tanpa Envoy Proxy / API Gateway). Terdiri dari 2 service independen yang berkomunikasi secara *inter-service*:
 
-1. **`user-service`** (`:50051`): Mengelola data user & berkomunikasi dengan `job-service` untuk agregasi data.
+1. **`user-service`** (`:50051`): Mengelola data user & berkomunikasi dengan `job-service` dan `education-service` untuk agregasi data.
 2. **`job-service`** (`:50052`): Mengelola data pekerjaan berbasis `userId`.
 2. **`education-service`** (`:50053`): Mengelola data pendidikan berbasis `userId`.
 
