@@ -27,6 +27,7 @@ type User struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	Jobs          []*Job                 `protobuf:"bytes,4,rep,name=jobs,proto3" json:"jobs,omitempty"`
+	Educations    []*Education           `protobuf:"bytes,5,rep,name=educations,proto3" json:"educations,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -85,6 +86,13 @@ func (x *User) GetEmail() string {
 func (x *User) GetJobs() []*Job {
 	if x != nil {
 		return x.Jobs
+	}
+	return nil
+}
+
+func (x *User) GetEducations() []*Education {
+	if x != nil {
+		return x.Educations
 	}
 	return nil
 }
@@ -330,12 +338,15 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x02pb\x1a\tjob.proto\"]\n" +
+	"user.proto\x12\x02pb\x1a\tjob.proto\x1a\x0feducation.proto\"\x8c\x01\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1b\n" +
-	"\x04jobs\x18\x04 \x03(\v2\a.pb.JobR\x04jobs\"=\n" +
+	"\x04jobs\x18\x04 \x03(\v2\a.pb.JobR\x04jobs\x12-\n" +
+	"\n" +
+	"educations\x18\x05 \x03(\v2\r.pb.EducationR\n" +
+	"educations\"=\n" +
 	"\x11CreateUserRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\" \n" +
@@ -378,22 +389,24 @@ var file_user_proto_goTypes = []any{
 	(*DeleteUserRequest)(nil), // 4: pb.DeleteUserRequest
 	(*EmptyUserResponse)(nil), // 5: pb.EmptyUserResponse
 	(*Job)(nil),               // 6: pb.Job
+	(*Education)(nil),         // 7: pb.Education
 }
 var file_user_proto_depIdxs = []int32{
 	6, // 0: pb.User.jobs:type_name -> pb.Job
-	1, // 1: pb.UserService.CreateUser:input_type -> pb.CreateUserRequest
-	2, // 2: pb.UserService.GetUser:input_type -> pb.GetUserRequest
-	3, // 3: pb.UserService.UpdateUser:input_type -> pb.UpdateUserRequest
-	4, // 4: pb.UserService.DeleteUser:input_type -> pb.DeleteUserRequest
-	0, // 5: pb.UserService.CreateUser:output_type -> pb.User
-	0, // 6: pb.UserService.GetUser:output_type -> pb.User
-	0, // 7: pb.UserService.UpdateUser:output_type -> pb.User
-	5, // 8: pb.UserService.DeleteUser:output_type -> pb.EmptyUserResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	7, // 1: pb.User.educations:type_name -> pb.Education
+	1, // 2: pb.UserService.CreateUser:input_type -> pb.CreateUserRequest
+	2, // 3: pb.UserService.GetUser:input_type -> pb.GetUserRequest
+	3, // 4: pb.UserService.UpdateUser:input_type -> pb.UpdateUserRequest
+	4, // 5: pb.UserService.DeleteUser:input_type -> pb.DeleteUserRequest
+	0, // 6: pb.UserService.CreateUser:output_type -> pb.User
+	0, // 7: pb.UserService.GetUser:output_type -> pb.User
+	0, // 8: pb.UserService.UpdateUser:output_type -> pb.User
+	5, // 9: pb.UserService.DeleteUser:output_type -> pb.EmptyUserResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -402,6 +415,7 @@ func file_user_proto_init() {
 		return
 	}
 	file_job_proto_init()
+	file_education_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

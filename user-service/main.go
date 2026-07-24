@@ -34,12 +34,13 @@ func main() {
 	}
 	defer database.Close()
 
-	// Inisialisasi Job Client (Koneksi ke Job Service di port 50052)
 	jobClient := client.NewJobClient("http://localhost:50052")
+	educationClient := client.NewEducationClient("http://localhost:50053")
 
 	userServer := &server.UserServer{
 		DB:        database,
 		JobClient: jobClient,
+		EducationClient: educationClient,
 	}
 
 	mux := http.NewServeMux()

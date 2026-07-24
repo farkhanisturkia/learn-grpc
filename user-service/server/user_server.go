@@ -14,6 +14,7 @@ import (
 type UserServer struct {
 	DB        *sql.DB
 	JobClient pbconnect.JobServiceClient
+	EducationClient pbconnect.EducationServiceClient
 }
 
 // 1. CreateUser
@@ -35,7 +36,7 @@ func (s *UserServer) CreateUser(
 	}), nil
 }
 
-// 2. GetUser (Ambil data user + List job-nya dari Job Service)
+// 2. GetUser (Ambil data user + List job-nya dari Job Service + List Education-nya dari Education Service)
 func (s *UserServer) GetUser(
 	ctx context.Context,
 	req *connect.Request[pb.GetUserRequest],
@@ -58,6 +59,14 @@ func (s *UserServer) GetUser(
 		user.Jobs = jobRes.Msg.Jobs
 	}
 
+	// Panggil Education Service via Connect RPC Client
+	educationRes, err := s.EducationClient.GetEducationsByUser(ctx, connect.NewRequest(&pb.GetEducationsByUserRequest{
+		UserId: user.Id,
+	}))
+	if err == nil && educationRes.Msg != nil {
+		user.Educations = educationRes.Msg.Educations
+	}
+
 	return connect.NewResponse(&user), nil
 }
 
@@ -74,7 +83,7 @@ func (s *UserServer) UpdateUser(
 	return s.GetUser(ctx, connect.NewRequest(&pb.GetUserRequest{Id: req.Msg.Id}))
 }
 
-// 4. DeleteUser (Hapus User + Cascade Hapus Job terkait via Job Service)
+// 4. DeleteUser (Hapus User + Cascade Hapus Job terkait via Job Service + Cascade Hapus Education terkait via Education Service)
 func (s *UserServer) DeleteUser(
 	ctx context.Context,
 	req *connect.Request[pb.DeleteUserRequest],
@@ -88,6 +97,11 @@ func (s *UserServer) DeleteUser(
 
 	// Hapus seluruh job terkait di Job Service
 	_, _ = s.JobClient.DeleteJobsByUser(ctx, connect.NewRequest(&pb.DeleteJobsByUserRequest{
+		UserId: req.Msg.Id,
+	}))
+
+	// Hapus seluruh education terkait di Education Service
+	_, _ = s.EducationClient.DeleteEducationsByUser(ctx, connect.NewRequest(&pb.DeleteEducationsByUserRequest{
 		UserId: req.Msg.Id,
 	}))
 
