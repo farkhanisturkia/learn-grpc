@@ -121,12 +121,25 @@ Buka 2 tab terminal terpisah dan jalankan kedua service:
   -H "Content-Type: application/json" \
   -d '{
     "name": "User",
-    "email": "user@example.id"
+    "email": "user@example.id",
+    "password": "userpassword"
   }' \
   http://localhost:50051/pb.UserService/CreateUser | jq
   ```
 
-* Get User (Inter-Service to Job Service)
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Admin",
+    "email": "admin@example.id",
+    "password": "adminpassword",
+    "role": "admin"
+  }' \
+  http://localhost:50051/pb.UserService/CreateUser | jq
+  ```
+
+* Get User
   ```bash
   curl -s -X POST \
   -H "Content-Type: application/json" \
@@ -134,6 +147,16 @@ Buka 2 tab terminal terpisah dan jalankan kedua service:
     "id": 1
   }' \
   http://localhost:50051/pb.UserService/GetUser | jq
+  ```
+
+* Get User By Email
+  ```bash
+  curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.id"
+  }' \
+  http://localhost:50051/pb.UserService/GetUserByEmailInternal | jq
   ```
 
 * Update User
