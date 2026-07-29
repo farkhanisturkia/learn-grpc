@@ -11,19 +11,36 @@ message User {
   int64 id = 1;
   string name = 2;
   string email = 3;
-  repeated Job jobs = 4;
-  repeated Education educations = 5;
+  string role = 4;
+  repeated Job jobs = 5;
+  repeated Education educations = 6;
 }
 
-message CreateUserRequest { string name = 1; string email = 2; }
+message UserInternal {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+  string password = 5;
+}
+
+message CreateUserRequest { 
+  string name = 1; 
+  string email = 2; 
+  string password = 3;
+  string role = 4; 
+}
+
 message GetUserRequest { int64 id = 1; }
-message UpdateUserRequest { int64 id = 1; string name = 2; string email = 3; }
+message GetUserByEmailRequest { string email = 1; }
+message UpdateUserRequest { int64 id = 1; string name = 2; string email = 3; string role = 4; }
 message DeleteUserRequest { int64 id = 1; }
 message EmptyUserResponse {}
 
 service UserService {
   rpc CreateUser(CreateUserRequest) returns (User);
   rpc GetUser(GetUserRequest) returns (User);
+  rpc GetUserByEmailInternal(GetUserByEmailRequest) returns (UserInternal);
   rpc UpdateUser(UpdateUserRequest) returns (User);
   rpc DeleteUser(DeleteUserRequest) returns (EmptyUserResponse);
 }
