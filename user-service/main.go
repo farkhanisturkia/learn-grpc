@@ -12,7 +12,6 @@ import (
 	"user-service/server"
 )
 
-// Middleware CORS sederhana agar Frontend Vite bisa akses langsung
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -45,11 +44,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// 1. Register Handler UserService Connect RPC
 	path, handler := pbconnect.NewUserServiceHandler(userServer)
 	mux.Handle(path, handler)
 
-	// 2. Register gRPC Reflection (Mendukung Connect Protocol)
 	reflector := grpcreflect.NewStaticReflector(
 		pbconnect.UserServiceName,
 	)
@@ -58,7 +55,6 @@ func main() {
 
 	log.Println("🚀 User Service (Connect RPC) berjalan di http://localhost:50051")
 
-	// 3. Gunakan http.ListenAndServe Standar Go (Tanpa h2c & tanpa warning deprecated!)
 	err = http.ListenAndServe(":50051", corsMiddleware(mux))
 	if err != nil {
 		log.Fatalf("Server error: %v", err)

@@ -14,7 +14,9 @@ func InitDB() (*sql.DB, error) {
 	query := `CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
-		email TEXT NOT NULL UNIQUE
+		email TEXT NOT NULL UNIQUE,
+		password TEXT NOT NULL DEFAULT '',
+		role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user'))
 	);`
 
 	_, err = database.Exec(query)
