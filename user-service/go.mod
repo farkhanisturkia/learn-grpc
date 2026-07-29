@@ -8,4 +8,7 @@ require (
 	google.golang.org/protobuf v1.36.11
 )
 
-require connectrpc.com/grpcreflect v1.3.0
+require (
+	connectrpc.com/grpcreflect v1.3.0
+	golang.org/x/crypto v0.54.0
+)
