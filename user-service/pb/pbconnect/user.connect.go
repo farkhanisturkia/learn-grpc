@@ -37,6 +37,9 @@ const (
 	UserServiceCreateUserProcedure = "/pb.UserService/CreateUser"
 	// UserServiceGetUserProcedure is the fully-qualified name of the UserService's GetUser RPC.
 	UserServiceGetUserProcedure = "/pb.UserService/GetUser"
+	// UserServiceGetUserByEmailInternalProcedure is the fully-qualified name of the UserService's
+	// GetUserByEmailInternal RPC.
+	UserServiceGetUserByEmailInternalProcedure = "/pb.UserService/GetUserByEmailInternal"
 	// UserServiceUpdateUserProcedure is the fully-qualified name of the UserService's UpdateUser RPC.
 	UserServiceUpdateUserProcedure = "/pb.UserService/UpdateUser"
 	// UserServiceDeleteUserProcedure is the fully-qualified name of the UserService's DeleteUser RPC.
@@ -47,6 +50,7 @@ const (
 type UserServiceClient interface {
 	CreateUser(context.Context, *connect.Request[pb.CreateUserRequest]) (*connect.Response[pb.User], error)
 	GetUser(context.Context, *connect.Request[pb.GetUserRequest]) (*connect.Response[pb.User], error)
+	GetUserByEmailInternal(context.Context, *connect.Request[pb.GetUserByEmailRequest]) (*connect.Response[pb.UserInternal], error)
 	UpdateUser(context.Context, *connect.Request[pb.UpdateUserRequest]) (*connect.Response[pb.User], error)
 	DeleteUser(context.Context, *connect.Request[pb.DeleteUserRequest]) (*connect.Response[pb.EmptyUserResponse], error)
 }
@@ -74,6 +78,12 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("GetUser")),
 			connect.WithClientOptions(opts...),
 		),
+		getUserByEmailInternal: connect.NewClient[pb.GetUserByEmailRequest, pb.UserInternal](
+			httpClient,
+			baseURL+UserServiceGetUserByEmailInternalProcedure,
+			connect.WithSchema(userServiceMethods.ByName("GetUserByEmailInternal")),
+			connect.WithClientOptions(opts...),
+		),
 		updateUser: connect.NewClient[pb.UpdateUserRequest, pb.User](
 			httpClient,
 			baseURL+UserServiceUpdateUserProcedure,
@@ -91,10 +101,11 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	createUser *connect.Client[pb.CreateUserRequest, pb.User]
-	getUser    *connect.Client[pb.GetUserRequest, pb.User]
-	updateUser *connect.Client[pb.UpdateUserRequest, pb.User]
-	deleteUser *connect.Client[pb.DeleteUserRequest, pb.EmptyUserResponse]
+	createUser             *connect.Client[pb.CreateUserRequest, pb.User]
+	getUser                *connect.Client[pb.GetUserRequest, pb.User]
+	getUserByEmailInternal *connect.Client[pb.GetUserByEmailRequest, pb.UserInternal]
+	updateUser             *connect.Client[pb.UpdateUserRequest, pb.User]
+	deleteUser             *connect.Client[pb.DeleteUserRequest, pb.EmptyUserResponse]
 }
 
 // CreateUser calls pb.UserService.CreateUser.
@@ -105,6 +116,11 @@ func (c *userServiceClient) CreateUser(ctx context.Context, req *connect.Request
 // GetUser calls pb.UserService.GetUser.
 func (c *userServiceClient) GetUser(ctx context.Context, req *connect.Request[pb.GetUserRequest]) (*connect.Response[pb.User], error) {
 	return c.getUser.CallUnary(ctx, req)
+}
+
+// GetUserByEmailInternal calls pb.UserService.GetUserByEmailInternal.
+func (c *userServiceClient) GetUserByEmailInternal(ctx context.Context, req *connect.Request[pb.GetUserByEmailRequest]) (*connect.Response[pb.UserInternal], error) {
+	return c.getUserByEmailInternal.CallUnary(ctx, req)
 }
 
 // UpdateUser calls pb.UserService.UpdateUser.
@@ -121,6 +137,7 @@ func (c *userServiceClient) DeleteUser(ctx context.Context, req *connect.Request
 type UserServiceHandler interface {
 	CreateUser(context.Context, *connect.Request[pb.CreateUserRequest]) (*connect.Response[pb.User], error)
 	GetUser(context.Context, *connect.Request[pb.GetUserRequest]) (*connect.Response[pb.User], error)
+	GetUserByEmailInternal(context.Context, *connect.Request[pb.GetUserByEmailRequest]) (*connect.Response[pb.UserInternal], error)
 	UpdateUser(context.Context, *connect.Request[pb.UpdateUserRequest]) (*connect.Response[pb.User], error)
 	DeleteUser(context.Context, *connect.Request[pb.DeleteUserRequest]) (*connect.Response[pb.EmptyUserResponse], error)
 }
@@ -144,6 +161,12 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("GetUser")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceGetUserByEmailInternalHandler := connect.NewUnaryHandler(
+		UserServiceGetUserByEmailInternalProcedure,
+		svc.GetUserByEmailInternal,
+		connect.WithSchema(userServiceMethods.ByName("GetUserByEmailInternal")),
+		connect.WithHandlerOptions(opts...),
+	)
 	userServiceUpdateUserHandler := connect.NewUnaryHandler(
 		UserServiceUpdateUserProcedure,
 		svc.UpdateUser,
@@ -162,6 +185,8 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceCreateUserHandler.ServeHTTP(w, r)
 		case UserServiceGetUserProcedure:
 			userServiceGetUserHandler.ServeHTTP(w, r)
+		case UserServiceGetUserByEmailInternalProcedure:
+			userServiceGetUserByEmailInternalHandler.ServeHTTP(w, r)
 		case UserServiceUpdateUserProcedure:
 			userServiceUpdateUserHandler.ServeHTTP(w, r)
 		case UserServiceDeleteUserProcedure:
@@ -181,6 +206,10 @@ func (UnimplementedUserServiceHandler) CreateUser(context.Context, *connect.Requ
 
 func (UnimplementedUserServiceHandler) GetUser(context.Context, *connect.Request[pb.GetUserRequest]) (*connect.Response[pb.User], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pb.UserService.GetUser is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) GetUserByEmailInternal(context.Context, *connect.Request[pb.GetUserByEmailRequest]) (*connect.Response[pb.UserInternal], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pb.UserService.GetUserByEmailInternal is not implemented"))
 }
 
 func (UnimplementedUserServiceHandler) UpdateUser(context.Context, *connect.Request[pb.UpdateUserRequest]) (*connect.Response[pb.User], error) {
